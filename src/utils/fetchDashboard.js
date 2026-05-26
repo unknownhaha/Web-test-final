@@ -1,10 +1,3 @@
-/**
- * TODO (B1): Refactor to concurrent fetching with Promise.all + try/catch
- *
- * Simulates slow API calls (like fetch to Express endpoints).
- * Currently SEQUENTIAL — fix it for the exam.
- */
-
 function delay(ms, value) {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
 }
@@ -21,11 +14,15 @@ async function mockFetchPosts() {
 }
 
 async function fetchDashboard() {
-  // TODO: Replace sequential awaits with Promise.all
-  const user = await mockFetchUser();
-  const posts = await mockFetchPosts();
-
-  return { user, posts, fetchedAt: new Date().toISOString() };
+  try {
+    const [user, posts] = await Promise.all([
+      mockFetchUser(),
+      mockFetchPosts()
+    ]);
+    return { user, posts, fetchedAt: new Date().toISOString() };
+  } catch (error) {
+    return { error: error.message };
+  }
 }
 
 module.exports = { fetchDashboard, mockFetchUser, mockFetchPosts };

@@ -1,7 +1,3 @@
-/**
- * TODO (B4): Fix broken access control on PUT/DELETE
- */
-
 const express = require('express');
 const {
   posts,
@@ -14,12 +10,10 @@ const { validatePostInput } = require('../middleware/validate');
 
 const router = express.Router();
 
-// Public — list all posts
 router.get('/', (req, res) => {
   res.json(posts);
 });
 
-// Authenticated — create post
 router.post('/', authenticate, validatePostInput, (req, res) => {
   const { title, body, tags = [] } = req.body;
   const newPost = {
@@ -35,12 +29,13 @@ router.post('/', authenticate, validatePostInput, (req, res) => {
   res.status(201).json(newPost);
 });
 
-// BUG: Any authenticated user can edit ANY post — fix for exam
 router.put('/:id', authenticate, validatePostInput, (req, res) => {
   const post = findPostById(req.params.id);
   if (!post) return res.status(404).json({ error: 'Post not found' });
 
-  // TODO: Only owner (post.userId === req.user.sub) OR admin may update
+  if (post.userId !== req.user.sub && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
 
   const { title, body, tags = post.tags } = req.body;
   post.title = title.trim();
@@ -49,12 +44,9 @@ router.put('/:id', authenticate, validatePostInput, (req, res) => {
   res.json(post);
 });
 
-// BUG: Should be admin-only — fix for exam
-router.delete('/:id', authenticate, (req, res) => {
+router.delete('/:id', authenticate, authorize('admin'), (req, res) => {
   const index = posts.findIndex((p) => p.id === Number(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'Post not found' });
-
-  // TODO: Only admin role may delete
 
   posts.splice(index, 1);
   res.status(204).send();

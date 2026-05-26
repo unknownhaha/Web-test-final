@@ -1,7 +1,3 @@
-/**
- * TODO (B6): Spawn worker, fetch posts, postMessage, display in #stats
- */
-
 const statsEl = document.getElementById('stats');
 const loadBtn = document.getElementById('loadStats');
 const blockBtn = document.getElementById('blockMain');
@@ -9,17 +5,30 @@ const blockBtn = document.getElementById('blockMain');
 loadBtn.addEventListener('click', async () => {
   statsEl.textContent = 'Loading...';
 
-  // TODO:
-  // 1. fetch('/api/posts')
-  // 2. new Worker('worker.js')
-  // 3. worker.postMessage(posts)
-  // 4. worker.onmessage → display stats in #stats
-  // 5. worker.terminate() after result
+  try {
+    const res = await fetch('/api/posts');
+    if (!res.ok) throw new Error('Failed to fetch posts');
 
-  statsEl.textContent = 'Not implemented — complete main.js (B6)';
+    const posts = await res.json();
+    const worker = new Worker('worker.js');
+
+    worker.onmessage = (e) => {
+      const { avgWordCount, longestTitle, postCount } = e.data;
+      statsEl.textContent = `Average word count: ${avgWordCount.toFixed(2)}, Longest title: ${longestTitle}, Post count: ${postCount}`;
+      worker.terminate();
+    };
+
+    worker.onerror = () => {
+      statsEl.textContent = 'Worker error';
+      worker.terminate();
+    };
+
+    worker.postMessage(posts);
+  } catch (error) {
+    statsEl.textContent = error.message;
+  }
 });
 
-// Demo: blocking main thread (why workers matter)
 blockBtn.addEventListener('click', () => {
   const start = Date.now();
   while (Date.now() - start < 2000) { /* block 2 seconds */ }
