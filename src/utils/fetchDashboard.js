@@ -22,8 +22,12 @@ async function mockFetchPosts() {
 
 async function fetchDashboard() {
   // TODO: Replace sequential awaits with Promise.all
-  const user = await mockFetchUser();
-  const posts = await mockFetchPosts();
+  try {
+    const [user, posts] = await Promise.all([mockFetchUser(), mockFetchPosts()]);
+  } 
+  catch (error) {
+    return { error: error.message };
+  }
 
   return { user, posts, fetchedAt: new Date().toISOString() };
 }

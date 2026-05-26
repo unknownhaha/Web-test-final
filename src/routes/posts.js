@@ -41,21 +41,21 @@ router.put('/:id', authenticate, validatePostInput, (req, res) => {
   if (!post) return res.status(404).json({ error: 'Post not found' });
 
   // TODO: Only owner (post.userId === req.user.sub) OR admin may update
-
-  const { title, body, tags = post.tags } = req.body;
-  post.title = title.trim();
-  post.body = body.trim();
-  post.tags = tags;
-  res.json(post);
+  if (post.userId === req.user.sub || req.user.role === 'admin') { 
+    const { title, body, tags = post.tags } = req.body;
+    post.title = title.trim();
+    post.body = body.trim();
+    post.tags = tags;
+    res.json(post);
+  }
 });
 
 // BUG: Should be admin-only — fix for exam
-router.delete('/:id', authenticate, (req, res) => {
+router.delete('/:id', authenticate, authorize('admin'), (req, res) => {
   const index = posts.findIndex((p) => p.id === Number(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'Post not found' });
 
   // TODO: Only admin role may delete
-
   posts.splice(index, 1);
   res.status(204).send();
 });

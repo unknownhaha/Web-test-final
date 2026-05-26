@@ -18,8 +18,15 @@ router.post('/login', async (req, res) => {
   // 2. Find user; if not found OR wrong password → 401 { error: 'Invalid credentials' }
   // 3. Use bcrypt.compare for password
   // 4. Return { token, user: { id, email, role, name } }
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email' });
+  }
 
-  return res.status(501).json({ error: 'Not implemented — complete login route' });
+  if (!user || !bcrypt.compare(password, user.passwordHash)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  return res.status(200).json({ token, user: { id, email, role, name } });
 });
 
 module.exports = router;

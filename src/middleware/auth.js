@@ -11,8 +11,19 @@ function authenticate(req, res, next) {
   // 3. Verify with process.env.JWT_SECRET
   // 4. Reject alg:"none" and invalid tokens → 401
   // 5. Attach decoded payload to req.user
-
-  return res.status(401).json({ error: 'Not implemented — complete authenticate middleware' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing token' });
+  }
+  const token = authHeader.split(' ')[1];
+  
+  try{
+    const decodedToken=jwt.verify(token,process.env.JWT_SECRET);
+    req.user=decodedToken;
+    next();
+  }
+  catch(error){
+    return res.status(401).json({ error: 'Not implemented — complete authenticate middleware' });
+  }
 }
 
 function authorize(...allowedRoles) {
@@ -21,8 +32,11 @@ function authorize(...allowedRoles) {
     // 1. Check req.user exists
     // 2. Check req.user.role is in allowedRoles
     // 3. Return 403 if not allowed
-
-    return res.status(403).json({ error: 'Not implemented — complete authorize middleware' });
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Not implemented — complete authorize middleware' });
+    }
+    
+    next();
   };
 }
 
