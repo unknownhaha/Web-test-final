@@ -41,13 +41,15 @@ router.put('/:id', authenticate, validatePostInput, (req, res) => {
   if (!post) return res.status(404).json({ error: 'Post not found' });
 
   // TODO: Only owner (post.userId === req.user.sub) OR admin may update
-  if (post.userId === req.user.sub || req.user.role === 'admin') { 
-    const { title, body, tags = post.tags } = req.body;
-    post.title = title.trim();
-    post.body = body.trim();
-    post.tags = tags;
-    res.json(post);
+  if (post.userId !== req.user.sub && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden: You are not the owner of this post' });
   }
+
+  const { title, body, tags = post.tags } = req.body;
+  post.title = title; // Already trimmed by validatePostInput
+  post.body = body;   // Already trimmed by validatePostInput
+  post.tags = tags;
+  res.json(post);
 });
 
 // BUG: Should be admin-only — fix for exam

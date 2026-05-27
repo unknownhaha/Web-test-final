@@ -21,15 +21,15 @@ async function mockFetchPosts() {
 }
 
 async function fetchDashboard() {
-  // TODO: Replace sequential awaits with Promise.all
+  // B1: Replace sequential awaits with Promise.all
   try {
     const [user, posts] = await Promise.all([mockFetchUser(), mockFetchPosts()]);
-  } 
-  catch (error) {
+    // รีเทิร์นค่าจากใน try block ทันที เพื่อป้องกันปัญหา scope ของตัวแปร const
+    return { user, posts, fetchedAt: new Date().toISOString() };
+  } catch (error) {
+    // ดักจับ error และรีเทิร์น object ตามที่โจทย์กำหนด
     return { error: error.message };
   }
-
-  return { user, posts, fetchedAt: new Date().toISOString() };
 }
 
 module.exports = { fetchDashboard, mockFetchUser, mockFetchPosts };

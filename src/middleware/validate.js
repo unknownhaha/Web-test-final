@@ -4,31 +4,74 @@
  */
 
 function validatePostInput(req, res, next) {
-  // TODO: Validate title, body, tags
-  // Return 400 with { error: "..." } on failure
-  // Call next() on success
-  const { title, body, tags } = req.body;
-
-  if (!title || typeof title !== 'string' || title.trim() === '' || title.length > 3 || title.length < 100) {
-    return res.status(400).json({ error: 'Title must be a string between 3 and 100 characters.' });
+  // Check if req.body is an object and not null
+  if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+    return res.status(400).json({ error: 'Invalid request body' });
   }
 
-    if (!body || typeof body !== 'string' || body.trim() === '' || body.length > 1 || body.length < 2000) {
-      return res.status(400).json({ error: 'Body must be a string between 200 and 1000 characters.' });
-    }
+  // ใช้ rest operator เพื่อดึง fields ที่เรารู้จัก และเก็บตัวที่เหลือไว้ใน unknownFields
+  const { title, body, tags, ...unknownFields } = req.body;
 
-    // ตรวจสอบว่ามีการส่ง tags มาไหม (เพราะเป็น Optional)
-  if (tags) {
-    if (
-      !Array.isArray(tags) || // ต้องเป็น Array
-      tags.length > 5 || // มีสมาชิกได้มากสุด 5 ตัว
-      tags.some(tag => typeof tag !== 'string' || tag.trim().length === 0 || tag.trim().length > 20 || !/^[a-zA-Z0-9]+$/.test(tag.trim())) // แต่ละตัวต้องเป็น String, ไม่ว่าง, ยาวไม่เกิน 20, และเป็น alphanumeric
-    ) {
-      return res.status(400).json({ error: 'Invalid tags format' });
+  // โบนัส: ปฏิเสธ (reject) หากมี unknown fields โผล่มาใน POST body (แนวคิด allow-list)
+  if (Object.keys(unknownFields).length > 0) {
+    return res.status(400).json({ error: 'Unknown fields are not allowed in the request body.' });
+  }
+
+  // 1. Validate 'title': Required string, trim, length 3-100
+  if (typeof title !== 'string') {
+    return res.status(400).json({ error: 'Title is required and must be a string.' });
+  }
+  const trimmedTitle = title.trim();
+  if (trimmedTitle.length < 3 || trimmedTitle.length > 100) {
+    return res.status(400).json({ error: 'Title must be between 3 and 100 characters.' });
+  }
+
+  // 2. Validate 'body': Required string, trim, length 1-2000
+  if (typeof body !== 'string') {
+    return res.status(400).json({ error: 'Body is required and must be a string.' });
+  }
+  const trimmedBody = body.trim();
+  if (trimmedBody.length < 1 || trimmedBody.length > 2000) {
+    return res.status(400).json({ error: 'Body must be between 1 and 2000 characters.' });
+  }
+
+  // 3. Validate 'tags': Optional array; max 5 items; แต่ละ tag เป็น alphanumeric, max 20 chars
+  let processedTags = undefined;
+  if (tags !== undefined) {
+    if (!Array.isArray(tags)) {
+      return res.status(400).json({ error: 'Tags must be an array.' });
+    }
+    if (tags.length > 5) {
+      return res.status(400).json({ error: 'Maximum of 5 tags are allowed.' });
+    }
+    processedTags = [];
+    for (const tag of tags) {
+      if (typeof tag !== 'string') {
+        return res.status(400).json({ error: 'Each tag must be a string.' });
+      }
+      const trimmedTag = tag.trim();
+      if (trimmedTag.length === 0 || trimmedTag.length > 20) {
+        return res.status(400).json({ error: 'Each tag must be between 1 and 20 characters.' });
+      }
+      if (!/^[a-zA-Z0-9]+$/.test(trimmedTag)) {
+        return res.status(400).json({ error: 'Each tag must be alphanumeric.' });
+      }
+      processedTags.push(trimmedTag);
     }
   }
 
-};
+  // นำค่าที่ผ่านการตรวจสอบและ trim แล้วไปใช้ต่อ (Sanitization / Allow-list replacement)
+  req.body = {
+    title: trimmedTitle,
+    body: trimmedBody,
+  };
+  if (processedTags !== undefined) {
+    req.body.tags = processedTags;
+  }
+
+  // ส่งผ่านไปยัง middleware/route ถัดไปเมื่อ validate ผ่านทั้งหมด
+  next();
+}
 
 
 
