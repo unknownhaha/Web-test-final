@@ -1,0 +1,13 @@
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.container { max-width: 600px; width: 100%; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.news-img { width: 100%; display: block; }
+.card-content { padding: 20px; }
+#connection-status { font-size: 0.9rem; color: #555; }

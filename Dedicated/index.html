@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dedicated Worker Side-by-Side</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 40px;
+            transition: background 0.3s;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-test {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .btn-no-worker {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .btn-worker {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .status {
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Worker Comparison Demo</h2>
+
+        <button class="btn-test"
+            onclick="document.body.style.background = '#' + Math.floor(Math.random()*16777215).toString(16)">
+            Test UI Responsiveness
+        </button>
+
+        <hr>
+
+        <button id="noWorkerBtn" class="btn-no-worker">NO Worker</button>
+        <button id="workerBtn" class="btn-worker">Dedicated Worker</button>
+
+        <div class="status" id="statusDisplay">Ready for testing</div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>

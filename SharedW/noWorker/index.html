@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>No Worker Version</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background: #f4f4f9;
+        }
+
+        .counter {
+            font-size: 5rem;
+            color: #e74c3c;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Independent Counter (No Worker)</h1>
+    <div class="counter" id="countDisplay">0</div>
+    <button id="addBtn">Add +1</button>
+
+    <script>
+        let count = 0;
+        const display = document.getElementById('countDisplay');
+        const btn = document.getElementById('addBtn');
+
+        btn.onclick = () => {
+            count++;
+            display.textContent = count;
+        };
+    </script>
+</body>
+
+</html>

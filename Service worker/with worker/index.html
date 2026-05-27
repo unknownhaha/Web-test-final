@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version 2: Service Worker: Offline News Feed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Global News Explorer</h1>
+            <div id="connection-status">Status: <span id="status-text">Online</span></div>
+        </header>
+
+        <div class="card">
+            <img src="https://picsum.photos/600/300" alt="News" class="news-img">
+            <div class="card-content">
+                <h2>Service Worker onboard</h2>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+
+    <script>
+        const statusText = document.getElementById('status-text');
+        window.addEventListener('online', () => statusText.innerText = 'Online');
+        window.addEventListener('offline', () => statusText.innerText = 'Offline');
+    </script>
+</body>
+
+</html>
